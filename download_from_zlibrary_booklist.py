@@ -494,8 +494,8 @@ def build_local_files_index(local_library_path: Path) -> Dict:
 if __name__ == "__main__":
     # 配置来自 .env（也可在 Web 控制台“域名与路径配置”面板中修改）
     cfg = load_zlibrary_env()
-    save_dir = Path(cfg.get("booklist_save_dir") or r"E:\zlibrary_booklists")
-    local_library_path = Path(cfg.get("local_library_dir") or "E:\\")
+    save_dir = Path(cfg.get("booklist_save_dir") or r"downloads\booklists")
+    local_library_path = Path(cfg.get("local_library_dir") or "downloads")
     BASE_URL = "https://" + (cfg.get("domain") or "zh.zlib.bz")
     USE_LOCAL_INDEX = str(cfg.get("booklist_use_local_index", "false")).lower() == "true"
 

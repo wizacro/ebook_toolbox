@@ -4,15 +4,16 @@ from pathlib import Path
 ENV_FILE = Path(__file__).resolve().parent / ".env"
 
 # 缺省值：.env 中缺少对应键时使用。Web 控制台“域名与路径配置”面板会把这些键写回 .env。
+# 相对路径相对于脚本工作目录解析（便携版即解压目录），避免假设特定盘符存在。
 DEFAULT_CONFIG = {
     "email": "",
     "password": "",
     "remix_userid": "",
     "remix_userkey": "",
     "domain": "zh.zlib.bz",
-    "local_library_dir": "E:\\",
-    "local_output_dir": "E:\\书单",
-    "booklist_save_dir": "E:\\zlibrary_booklists",
+    "local_library_dir": "downloads",
+    "local_output_dir": "downloads\\书单",
+    "booklist_save_dir": "downloads\\booklists",
     "booklist_use_local_index": "false",
 }
 

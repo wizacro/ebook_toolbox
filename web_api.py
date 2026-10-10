@@ -73,8 +73,8 @@ def save_settings(config: EnvConfigModel):
 @app.get("/api/scripts")
 def get_scripts():
     cfg = load_zlibrary_env()
-    search_default = cfg.get("local_library_dir") or "E:\\"
-    output_default = cfg.get("local_output_dir") or "E:\\书单"
+    search_default = cfg.get("local_library_dir") or "downloads"
+    output_default = cfg.get("local_output_dir") or "downloads\\书单"
     return [
         {
             "id": "collect_local_ebooks",
@@ -243,8 +243,8 @@ async def run_script_websocket(websocket: WebSocket, script_id: str):
     elif script_id == "zlibrary_booklist_download":
         cfg = load_zlibrary_env()
         base_url = "https://" + (cfg.get("domain") or "zh.zlib.bz").strip()
-        save_dir = cfg.get("booklist_save_dir") or "E:\\zlibrary_booklists"
-        local_library_dir = cfg.get("local_library_dir") or "E:\\"
+        save_dir = cfg.get("booklist_save_dir") or "downloads\\booklists"
+        local_library_dir = cfg.get("local_library_dir") or "downloads"
         use_local_index = str(cfg.get("booklist_use_local_index", "false")).lower() == "true"
         raw_urls = [line.strip() for line in str(params.get("booklist_urls", "") or "").splitlines() if line.strip()]
         raw_urls_arg = repr(raw_urls) if raw_urls else "None"

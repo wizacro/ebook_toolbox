@@ -136,7 +136,7 @@ export default function SettingsPanel() {
           <input 
             value={settings.booklist_save_dir} 
             onChange={e => set('booklist_save_dir', e.target.value)} 
-            placeholder="E:\zlibrary_booklists" 
+            placeholder={'downloads\\booklists'} 
           />
           <span style={hintStyle}>“Z-Library 书单下载（按网址）”的保存位置，每个书单自动建一个子文件夹。</span>
         </div>
@@ -145,7 +145,7 @@ export default function SettingsPanel() {
           <input 
             value={settings.local_library_dir} 
             onChange={e => set('local_library_dir', e.target.value)} 
-            placeholder={'E:\\'}
+            placeholder={'downloads'}
           />
           <span style={hintStyle}>本地电子书的存放根目录；本地搜索整理与书单下载查重的起点。整个盘（如 E:\）或某个书库文件夹均可。</span>
         </div>
@@ -154,7 +154,7 @@ export default function SettingsPanel() {
           <input 
             value={settings.local_output_dir} 
             onChange={e => set('local_output_dir', e.target.value)} 
-            placeholder="E:\书单" 
+            placeholder={'downloads\\书单'} 
           />
           <span style={hintStyle}>“本地电子书搜索与整理”等卡片中输出目录的默认值（运行时仍可在卡片里临时修改）。</span>
         </div>

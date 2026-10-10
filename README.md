@@ -2,6 +2,16 @@
 
 面向个人电子书库整理的脚本集合，覆盖本地书单检索、Z-Library 补全下载、书单页抓取、重复文件报告和若干独立清理工具。
 
+## 解压即用版（Windows 10/11 x64）
+
+不想配置 Python 环境？到 [Releases](https://github.com/wizacro/ebook_toolbox/releases) 下载 `ebook_toolbox_portable_win64_v1.0.zip`（内置 Python 3.12 运行时与全部依赖，无需安装任何东西）：
+
+1. 解压到任意文件夹；
+2. 双击 **「启动控制台.bat」** → 自动打开 http://127.0.0.1:8000（在上方填入 Z-Library 账号、按需修改保存目录）；
+3. 下载书单：双击 **「下载书单.bat」**（先把书单网址复制到剪贴板），或在控制台「Z-Library 书单下载（按网址）」卡片中直接粘贴网址执行。
+
+> 下载书单需要本机安装 Chrome；解析书单页时会弹出 Chrome 窗口，请勿关闭。命令行用户仍可按下方「快速开始」自行部署源码。
+
 ## 快速开始
 
 1. 安装依赖（需要 Python 3.10 及以上；Web 控制台额外需要 fastapi 与 uvicorn）：
@@ -21,12 +31,13 @@
    ZLIBRARY_REMIX_USERKEY=
 
    # ---- 以下可选，均可在 Web 控制台的「域名与路径配置」面板中修改 ----
+   # 相对路径相对于工作目录解析（便携版即解压目录），无需固定盘符
    # Z-Library 镜像域名：若下载失败，换成浏览器中能打开书单页的域名
    ZLIBRARY_DOMAIN=zh.zlib.bz
    # 书单下载保存目录 / 本地书库目录 / 默认整理输出目录
-   BOOKLIST_SAVE_DIR=E:\zlibrary_booklists
-   LOCAL_LIBRARY_DIR=E:\
-   LOCAL_OUTPUT_DIR=E:\书单
+   BOOKLIST_SAVE_DIR=downloads\booklists
+   LOCAL_LIBRARY_DIR=downloads
+   LOCAL_OUTPUT_DIR=downloads\书单
    # 书单下载前是否先扫描本地书库查重（true/false）
    BOOKLIST_USE_LOCAL_INDEX=false
    ```
