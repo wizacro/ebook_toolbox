@@ -9,6 +9,7 @@ from env_config import load_zlibrary_env
 class ZLibraryAuth:
     remix_userid: str = ""
     remix_userkey: str = ""
+    domain: str = ""
 
 
 def load_zlibrary_auth(
@@ -17,21 +18,25 @@ def load_zlibrary_auth(
 ) -> ZLibraryAuth:
     env_path = env_path or Path(__file__).resolve().parent / ".env"
     zlibrary_account = load_zlibrary_env(env_path)
+    domain = zlibrary_account.get("domain") or ""
 
     if zlibrary_account.get("email") and zlibrary_account.get("password"):
         temp_client = client_factory(
             email=zlibrary_account["email"],
             password=zlibrary_account["password"],
+            domain=domain,
         )
         profile = temp_client.getProfile()["user"]
         return ZLibraryAuth(
             remix_userid=str(profile["id"]),
             remix_userkey=profile["remix_userkey"],
+            domain=domain,
         )
 
     return ZLibraryAuth(
         remix_userid=zlibrary_account.get("remix_userid", ""),
         remix_userkey=zlibrary_account.get("remix_userkey", ""),
+        domain=domain,
     )
 
 
@@ -42,6 +47,7 @@ def create_zlibrary_client(auth: ZLibraryAuth, client_factory=Zlibrary):
     return client_factory(
         remix_userid=auth.remix_userid,
         remix_userkey=auth.remix_userkey,
+        domain=auth.domain or None,
     )
 
 

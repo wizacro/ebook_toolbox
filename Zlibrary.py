@@ -7,6 +7,8 @@ For more information, see:
 https://github.com/bipinkrish/Zlibrary-API/
 """
 
+import os
+
 import requests
 
 
@@ -17,13 +19,14 @@ class Zlibrary:
         password: str = None,
         remix_userid: [int, str] = None,
         remix_userkey: str = None,
+        domain: str = None,
     ):
         self.__email: str
         self.__name: str
         self.__kindle_email: str
         self.__remix_userid: [int, str]
         self.__remix_userkey: str
-        self.__domain = "1lib.sk"
+        self.__domain = domain or os.environ.get("ZLIBRARY_DOMAIN") or "1lib.sk"
 
         self.__loggedin = False
         self.__headers = {

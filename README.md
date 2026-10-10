@@ -4,10 +4,10 @@
 
 ## 快速开始
 
-1. 安装依赖：
+1. 安装依赖（需要 Python 3.10 及以上；Web 控制台额外需要 fastapi 与 uvicorn）：
 
    ```bash
-   pip install requests pyperclip selenium lxml docx2txt ebooklib send2trash pywin32
+   pip install requests pyperclip selenium lxml docx2txt ebooklib send2trash pywin32 fastapi uvicorn
    ```
 
 2. 复制项目根目录下的 `.env.example` 为 `.env`，填写 Z-Library 账号信息：
@@ -19,11 +19,27 @@
    # 或者直接使用 remix token
    ZLIBRARY_REMIX_USERID=
    ZLIBRARY_REMIX_USERKEY=
+
+   # ---- 以下可选，均可在 Web 控制台的「域名与路径配置」面板中修改 ----
+   # Z-Library 镜像域名：若下载失败，换成浏览器中能打开书单页的域名
+   ZLIBRARY_DOMAIN=zh.zlib.bz
+   # 书单下载保存目录 / 本地书库目录 / 默认整理输出目录
+   BOOKLIST_SAVE_DIR=E:\zlibrary_booklists
+   LOCAL_LIBRARY_DIR=E:\
+   LOCAL_OUTPUT_DIR=E:\书单
+   # 书单下载前是否先扫描本地书库查重（true/false）
+   BOOKLIST_USE_LOCAL_INDEX=false
    ```
 
 3. **全新特性：Web 可视化控制台（推荐）**
 
-   现在您可以使用全新的全栈 Web 可视化工具箱管理您的电子书归档与操作。在根目录下运行：
+   现在您可以使用全新的全栈 Web 可视化工具箱管理您的电子书归档与操作。首次使用需先构建前端界面（需安装 Node.js）：
+
+   ```bash
+   cd frontend && npm install && npm run build && cd ..
+   ```
+
+   在根目录下运行：
 
    ```bash
    python web_server.py
@@ -35,7 +51,9 @@
    - **不更新索引**：勾选后跳过文件索引的刷新检查，直接使用已有 SQLite 索引，适用于索引已是最新的情况，可节省等待时间。
    - **从剪贴板读取书单**：勾选后可从浏览器剪贴板直接读取书单内容（需包含《》标记的书名），无需指定书单文件目录。点击「读取剪贴板」按钮获取内容，或执行脚本时自动读取。剪贴板模式仅处理剪贴板内容，不会继续处理本地书单目录。
 
-4. （可选使用命令行）按需手动运行单独的脚本文件，并在命令行覆盖默认路径。
+   控制台上方还提供 **「域名与路径配置」面板**（镜像域名、书单下载目录、本地书库目录、默认输出目录、本地查重开关，保存后写入 `.env` 立即生效），工作流区域新增 **「Z-Library 书单下载（按网址）」卡片**：直接粘贴书单页网址（每行一个）即可下载，无需使用剪贴板；网址留空时读取剪贴板。
+
+4. （可选使用命令行）按需手动运行单独的脚本文件，并在命令行覆盖默认路径。Windows 用户也可直接双击 `start_web_server.bat`（启动 Web 控制台）或 `download_booklist.bat`（先把书单网址复制到剪贴板，再双击开始下载）。
 
 5. 跑测试验证当前改动：
 
@@ -83,6 +101,8 @@
   - 通过URL访问书单Web页面，解析其中的电子书信息，并逐个下载电子书
   - 自动处理登录和电子书搜索匹配
   - 下载前搜索统一 SQLite 本地索引，先按精确标题命中，再按标准化标题前缀匹配，只下载本地没有的书
+  - 解析书单页使用 Selenium 有头 Chrome（无头模式会被 Z-Library 识别并拦截），运行时会弹出浏览器窗口，请勿关闭
+  - 支持通过 `.env` 的 `ZLIBRARY_DOMAIN` 或 Web 控制台配置镜像域名（默认 `zh.zlib.bz`）
 
 ### 根据本地书单文件批量下载电子书工具（collect_ebooks_with_booklists.py）
 

@@ -24,6 +24,7 @@ from zlibrary_booklist_workflow import (
     safe_filename,
 )
 from zlibrary_runtime import ZLibraryAuth, create_zlibrary_client, load_zlibrary_auth
+from env_config import load_zlibrary_env
 
 def setup_logging(save_dir: Path) -> logging.Logger:
     """配置日志记录器"""
@@ -123,12 +124,15 @@ class BooklistDownloader:
             from selenium.webdriver.support import expected_conditions as EC
             from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
-            # 配置Chrome选项
+            # 配置Chrome选项（无头模式会被 Z-Lib 指纹识别并封锁，必须用有头模式）
             options = webdriver.ChromeOptions()
-            options.add_argument('--headless')     # 可临时禁用无头模式来调试
             options.add_argument('--ignore-certificate-errors')
             options.add_argument('--ignore-ssl-errors')
+            options.add_experimental_option("excludeSwitches", ["enable-automation"])
+            options.add_experimental_option("useAutomationExtension", False)
+            options.add_argument('--disable-blink-features=AutomationControlled')
             driver = webdriver.Chrome(options=options)
+            driver.execute_script("Object.defineProperty(navigator,'webdriver',{get:()=>undefined})")
 
             try:
                 # 加载书单页面
@@ -373,21 +377,24 @@ class BooklistDownloader:
             self.logger.error(f"运行下载流程时出错: {e}")
 
 def process_booklists_from_clipboard(save_dir: Path, base_url: str = "https://1lib.sk",
-                                   local_library_path: Path = None, use_local_index: bool = True):
-    """从剪贴板获取书单链接并处理下载"""
+                                   local_library_path: Path = None, use_local_index: bool = True,
+                                   raw_urls: list = None):
+    """获取书单链接并处理下载（raw_urls 为空时读取系统剪贴板）"""
     # 添加logger初始化
     logger = setup_logging(save_dir)
 
-    clipboard_content = pyperclip.paste()
+    if raw_urls is None:
+        clipboard_content = pyperclip.paste()
+        raw_urls = [line.strip() for line in clipboard_content.split('\n') if line.strip()]
 
-    # 处理每一行内容
-    raw_urls = [line.strip() for line in clipboard_content.split('\n') if line.strip()]
     urls = []
 
     for raw_url in raw_urls:
-        # 如果是完整URL
+        # 如果是完整URL（接受 *.lib.sk、*.zlib.bz 及 .env 配置的基础域名）
         if raw_url.startswith(('http://', 'https://')):
-            if urlparse(raw_url).netloc.endswith('lib.sk'):
+            netloc = urlparse(raw_url).netloc.lower()
+            base_netloc = urlparse(base_url).netloc.lower()
+            if netloc.endswith(('lib.sk', 'zlib.bz')) or netloc == base_netloc:
                 urls.append(raw_url)
         # 如果是相对路径（以/开头）
         elif raw_url.startswith('/'):
@@ -400,13 +407,13 @@ def process_booklists_from_clipboard(save_dir: Path, base_url: str = "https://1l
             urls.append(urljoin(base_url, '/' + raw_url))
 
     if not urls:
-        logger.error("剪贴板中未找到有效zlibrary书单链接")
-        logger.info("请复制书单链接到剪贴板后重试")
+        logger.error("未找到有效的 Z-Library 书单链接")
+        logger.info("请复制书单链接到剪贴板后重试，或在界面中填入书单网址")
         logger.info("支持的格式：")
-        logger.info("1. 完整URL：https://1lib.sk/booklist/...")
+        logger.info("1. 完整URL：https://zh.zlib.bz/booklist/...")
         logger.info("2. 相对路径：/booklist/...")
         logger.info("3. 纯路径：booklist/...")
-        exit(1)
+        return
 
     logger.info(f"找到 {len(urls)} 个书单链接:")
     for i, url in enumerate(urls, 1):
@@ -485,10 +492,12 @@ def build_local_files_index(local_library_path: Path) -> Dict:
     return local_files_index
 
 if __name__ == "__main__":
-    save_dir = Path(r"I:\zlibrary_booklists")
-    local_library_path = Path(r"I:")  # 设置本地文件库路径
-    BASE_URL = "https://1lib.sk"
-    USE_LOCAL_INDEX = True  # 控制是否使用本地索引
+    # 配置来自 .env（也可在 Web 控制台“域名与路径配置”面板中修改）
+    cfg = load_zlibrary_env()
+    save_dir = Path(cfg.get("booklist_save_dir") or r"E:\zlibrary_booklists")
+    local_library_path = Path(cfg.get("local_library_dir") or "E:\\")
+    BASE_URL = "https://" + (cfg.get("domain") or "zh.zlib.bz")
+    USE_LOCAL_INDEX = str(cfg.get("booklist_use_local_index", "false")).lower() == "true"
 
     # 从剪贴板读取书单链接
     process_booklists_from_clipboard(

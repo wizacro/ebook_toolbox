@@ -25,14 +25,20 @@ class ZlibraryRuntimeTests(unittest.TestCase):
             env_path = Path(temp_dir) / ".env"
             env_path.write_text(
                 "ZLIBRARY_EMAIL=test@example.com\n"
-                "ZLIBRARY_PASSWORD=secret123\n",
+                "ZLIBRARY_PASSWORD=secret123\n"
+                "ZLIBRARY_DOMAIN=test.mirror\n",
                 encoding="utf-8",
             )
 
             auth = load_zlibrary_auth(env_path=env_path, client_factory=FakeClient)
 
-        self.assertEqual(captured_kwargs, {"email": "test@example.com", "password": "secret123"})
-        self.assertEqual(auth, ZLibraryAuth(remix_userid="42", remix_userkey="abc-token"))
+        self.assertEqual(
+            captured_kwargs,
+            {"email": "test@example.com", "password": "secret123", "domain": "test.mirror"},
+        )
+        self.assertEqual(
+            auth, ZLibraryAuth(remix_userid="42", remix_userkey="abc-token", domain="test.mirror")
+        )
 
     def test_load_zlibrary_auth_uses_existing_tokens_without_login(self):
         class FailingClient:
@@ -43,13 +49,16 @@ class ZlibraryRuntimeTests(unittest.TestCase):
             env_path = Path(temp_dir) / ".env"
             env_path.write_text(
                 "ZLIBRARY_REMIX_USERID=12345\n"
-                "ZLIBRARY_REMIX_USERKEY=token-value\n",
+                "ZLIBRARY_REMIX_USERKEY=token-value\n"
+                "ZLIBRARY_DOMAIN=test.mirror\n",
                 encoding="utf-8",
             )
 
             auth = load_zlibrary_auth(env_path=env_path, client_factory=FailingClient)
 
-        self.assertEqual(auth, ZLibraryAuth(remix_userid="12345", remix_userkey="token-value"))
+        self.assertEqual(
+            auth, ZLibraryAuth(remix_userid="12345", remix_userkey="token-value", domain="test.mirror")
+        )
 
     def test_create_zlibrary_client_requires_auth_and_passes_tokens(self):
         captured_kwargs = {}
@@ -67,7 +76,9 @@ class ZlibraryRuntimeTests(unittest.TestCase):
         )
 
         self.assertIsInstance(client, FakeClient)
-        self.assertEqual(captured_kwargs, {"remix_userid": "123", "remix_userkey": "token"})
+        self.assertEqual(
+            captured_kwargs, {"remix_userid": "123", "remix_userkey": "token", "domain": None}
+        )
 
     def test_find_pending_result_files_filters_processed_entries(self):
         with tempfile.TemporaryDirectory() as temp_dir:

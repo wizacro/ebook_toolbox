@@ -3,6 +3,31 @@ from pathlib import Path
 
 ENV_FILE = Path(__file__).resolve().parent / ".env"
 
+# 缺省值：.env 中缺少对应键时使用。Web 控制台“域名与路径配置”面板会把这些键写回 .env。
+DEFAULT_CONFIG = {
+    "email": "",
+    "password": "",
+    "remix_userid": "",
+    "remix_userkey": "",
+    "domain": "zh.zlib.bz",
+    "local_library_dir": "E:\\",
+    "local_output_dir": "E:\\书单",
+    "booklist_save_dir": "E:\\zlibrary_booklists",
+    "booklist_use_local_index": "false",
+}
+
+ENV_KEYS = {
+    "ZLIBRARY_EMAIL": "email",
+    "ZLIBRARY_PASSWORD": "password",
+    "ZLIBRARY_REMIX_USERID": "remix_userid",
+    "ZLIBRARY_REMIX_USERKEY": "remix_userkey",
+    "ZLIBRARY_DOMAIN": "domain",
+    "LOCAL_LIBRARY_DIR": "local_library_dir",
+    "LOCAL_OUTPUT_DIR": "local_output_dir",
+    "BOOKLIST_SAVE_DIR": "booklist_save_dir",
+    "BOOKLIST_USE_LOCAL_INDEX": "booklist_use_local_index",
+}
+
 
 def _parse_env_line(line: str):
     stripped = line.strip()
@@ -26,14 +51,9 @@ def _parse_env_line(line: str):
 
 
 def load_zlibrary_env(env_path: Path | None = None) -> dict[str, str]:
-    """Load Z-Library credentials from a project-local .env file."""
+    """Load Z-Library credentials and app settings from a project-local .env file."""
     env_path = env_path or ENV_FILE
-    config = {
-        "email": "",
-        "password": "",
-        "remix_userid": "",
-        "remix_userkey": "",
-    }
+    config = dict(DEFAULT_CONFIG)
 
     if not env_path.exists():
         return config
@@ -44,13 +64,8 @@ def load_zlibrary_env(env_path: Path | None = None) -> dict[str, str]:
             if not key:
                 continue
 
-            if key == "ZLIBRARY_EMAIL":
-                config["email"] = value
-            elif key == "ZLIBRARY_PASSWORD":
-                config["password"] = value
-            elif key == "ZLIBRARY_REMIX_USERID":
-                config["remix_userid"] = value
-            elif key == "ZLIBRARY_REMIX_USERKEY":
-                config["remix_userkey"] = value
+            config_key = ENV_KEYS.get(key)
+            if config_key:
+                config[config_key] = value
 
     return config

@@ -8,7 +8,7 @@ interface ParamDef {
   label: string;
   default: string;
   tooltip: string;
-  type?: 'text' | 'checkbox';
+  type?: 'text' | 'checkbox' | 'textarea';
 }
 
 interface ScriptDef {
@@ -37,7 +37,7 @@ export default function ScriptRunner() {
         data.forEach(script => {
           initialParams[script.id] = {};
           script.params.forEach(p => {
-            const savedValue = localStorage.getItem(`param_${script.id}_${p.key}`);
+            const savedValue = localStorage.getItem(`param_v2_${script.id}_${p.key}`);
             initialParams[script.id][p.key] = savedValue !== null ? savedValue : p.default;
           });
         });
@@ -53,7 +53,7 @@ export default function ScriptRunner() {
 
   const handleCheckboxChange = (scriptId: string, key: string, checked: boolean) => {
     const val = checked ? 'true' : 'false';
-    localStorage.setItem(`param_${scriptId}_${key}`, val);
+    localStorage.setItem(`param_v2_${scriptId}_${key}`, val);
     setParamValues(prev => ({
       ...prev,
       [scriptId]: {
@@ -168,6 +168,34 @@ export default function ScriptRunner() {
                     );
                   }
 
+                  if (p.type === 'textarea') {
+                    return (
+                      <div key={p.key} className="param-input-group">
+                        <div className="param-header">
+                          <label className="param-label">{p.label}</label>
+                          <span className="tooltip-icon" data-tooltip={p.tooltip}>?</span>
+                        </div>
+                        <textarea
+                          className="clipboard-textarea"
+                          style={{ minHeight: '84px' }}
+                          value={paramValues[script.id]?.[p.key] || ''}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            localStorage.setItem(`param_v2_${script.id}_${p.key}`, val);
+                            setParamValues(prev => ({
+                              ...prev,
+                              [script.id]: {
+                                ...prev[script.id],
+                                [p.key]: val
+                              }
+                            }));
+                          }}
+                          placeholder="每行一个网址；留空则读取系统剪贴板"
+                        />
+                      </div>
+                    );
+                  }
+
                   // 剪贴板模式下禁用 list_dir 输入框
                   const isDisabled = p.key === 'list_dir' && useClipboard(script.id);
 
@@ -182,7 +210,7 @@ export default function ScriptRunner() {
                         disabled={isDisabled}
                         onChange={(e) => {
                           const val = e.target.value;
-                          localStorage.setItem(`param_${script.id}_${p.key}`, val);
+                          localStorage.setItem(`param_v2_${script.id}_${p.key}`, val);
                           setParamValues(prev => ({
                             ...prev,
                             [script.id]: {

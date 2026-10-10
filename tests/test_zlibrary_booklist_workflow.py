@@ -25,6 +25,7 @@ class ZlibraryBooklistWorkflowTests(unittest.TestCase):
         def error(self, *args, **kwargs):
             return None
 
+    @unittest.skipUnless(FIXTURE_PATH.exists(), "书单页夹具未随仓库分发（作者本地临时文件）")
     def test_parse_booklist_html_extracts_title_and_books_from_fixture(self):
         html_content = FIXTURE_PATH.read_text(encoding="utf-8")
 
