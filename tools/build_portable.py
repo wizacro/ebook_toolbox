@@ -72,8 +72,42 @@ def copy_app(pkg_app: Path):
 
 
 def write_launchers(pkg_root: Path):
-    readme = (REPO_ROOT / "使用说明.md").read_text(encoding="utf-8")
-    (pkg_root / "使用说明.txt").write_text(readme, encoding="gbk", errors="replace")
+    readme_txt = """Ebook Toolbox 便携版（解压即用）
+================================
+
+本目录已内置 Python 运行时，无需安装任何环境。
+
+【一、启动 Web 控制台】（推荐先做这个）
+  双击「启动控制台.bat」
+  → 浏览器自动打开 http://127.0.0.1:8000
+  → 在页面顶部填入 Z-Library 邮箱和密码，点「保存设置」
+  → 在「域名与路径配置」里可按需修改保存目录等（默认在本目录下 downloads 文件夹）
+  → 停止服务：关掉黑色窗口
+
+【二、下载书单】
+  方式 A：在控制台「Z-Library 书单下载（按网址）」卡片中粘贴书单网址，点「执行脚本」
+  方式 B：复制书单网址到剪贴板，双击「下载书单.bat」
+
+  说明：
+  - 需要本机已安装 Chrome 浏览器（解析书单页必须，无法用无头浏览器替代）
+  - 解析时会弹出 Chrome 窗口自动加载书单，请勿关闭
+  - 已下载过的书自动跳过；中断后重新执行即可续传
+  - 个别书报“连接被重置”属网络抖动，重新执行一次可补齐
+
+【三、本地整理功能】
+  在控制台中使用「本地电子书搜索与整理」「书单批量下载（含Z-Lib）」卡片，
+  按书单文件（含《》书名）或剪贴板内容在本地硬盘搜索、归档已有电子书。
+
+【四、常见问题】
+  - 双击 bat 一闪而过 / 报错：确认解压完整（不要只复制单个文件），
+    且解压路径不含特殊字符；建议解压到 D:\\ebook_toolbox 之类短路径
+  - 提示端口被占用：已有一个控制台窗口在运行，先关掉它
+  - 域名失效导致下载失败：在控制台「域名与路径配置」中改成浏览器能打开书单页的域名
+  - 杀毒软件误报：本包不含任何可执行安装程序，添加信任即可
+
+更详细的文档见 app\\使用说明.md 与 app\\README.md。
+"""
+    (pkg_root / "使用说明.txt").write_text(readme_txt, encoding="gbk", errors="replace")
 
     start_bat = """@echo off
 title Ebook Toolbox 控制台
